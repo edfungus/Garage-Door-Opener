@@ -6,8 +6,9 @@ char WIFI_PASSWORD[ ] = "???";
 char FB_ID[ ] = "???";
 char FB_SECRET[ ] = "???";
 
+char* allowedUserIDs[] = {"???", "???"};
 
-class Secret_Example
+class Secret
 {
   public:
     Secret();
@@ -19,19 +20,19 @@ class Secret_Example
 
 Secret::Secret(){}
 
-void Secret::getWifiSSID()
+char* Secret::getWifiSSID()
 {
   return WIFI_SSID;
 }
-void Secret::getWifiPassword()
+char* Secret::getWifiPassword()
 {
   return WIFI_PASSWORD;
 }
-void Secret::getFBId()
+char* Secret::getFBId()
 {
   return FB_ID;
 }
-void Secret::getFBSecret()
+char* Secret::getFBSecret()
 {
   return FB_SECRET;
 }

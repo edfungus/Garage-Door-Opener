@@ -10,8 +10,10 @@ Garage Door Opener
 ESP8266WebServer server(80);
 Secret secret;
 Facebook facebook(secret);
+const char* argName = "token";
 
-void setup() {
+void setup() 
+{
   Serial.begin(115200);  
   WiFi.begin(secret.getWifiSSID(), secret.getWifiPassword()); 
   while (WiFi.status() != WL_CONNECTED) {
@@ -27,12 +29,20 @@ void setup() {
   Serial.println("Server started");
 }
 
-void loop() {
+void loop() 
+{
   server.handleClient();
 }
 
-void open() {
-  if(facebook.checkGaragePermissions("sdfdsf"))
+void open() 
+{
+  String token = getUserToken();
+  if(token.equals("error"))
+  {
+    server.send(422, "text/plain", "Uhh, token?");   
+    return;
+  }
+  if(facebook.checkGaragePermissions(token))
   {
     server.send(200, "text/plain", "Hello world open");
   }
@@ -45,4 +55,14 @@ void close() {
   server.send(200, "text/plain", "Hello world close");
 }
 
+String getUserToken() {
+  for (int i = 0; i < server.args(); i++) 
+  {
+    if(server.argName(i) == argName)
+    {
+      return server.arg(i);
+    }
+  } 
+  return String("error");
+}
 
