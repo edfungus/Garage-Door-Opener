@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+        <title>Castle Black Gate Control</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="white">
+        <link rel="apple-touch-icon" sizes="152x152" href="./wolf.jpg">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <style>
+        #controls {
+            display: none;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="fb-root"></div>
+        <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.10&appId=107379623282146";
+        fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+        </script>  
+        <script>
+            var accessToken = "";
+            window.fbAsyncInit = function() {
+                FB.init({
+                appId      : '107379623282146',
+                xfbml      : true,
+                version    : 'v2.10'
+                });
+                FB.AppEvents.logPageView();
+
+                FB.getLoginStatus(function(response) {
+                    if (response.status === 'connected') {
+                        initAfterLogin(response.authResponse);
+                    }
+                    else {
+                        FB.login(function(loginResponse){
+                            if (response.status === 'connected') {
+                                initAfterLogin(response.authResponse);                                
+                            }
+                        });
+                    }
+                });
+
+                var initAfterLogin = function(authResponse) {
+                    displayControlsOnly();
+                    setFBAuth(authResponse);
+                    console.log(authResponse);
+                }
+
+                var displayControlsOnly = function() {
+                    document.getElementsByClassName("fb-login-button")[0].style.display = "none";
+                    document.getElementById("controls").style.display = "block";  
+                }
+                
+                var setFBAuth = function(authResponse) {
+                    accessToken = authResponse.accessToken;            
+                }
+            };
+        </script>
+        <center>
+            <div class="jumbotron" style="padding-top: 20px">
+                <h2 class="display-3">Castle Black Gate Control</h2>
+                <p class="lead">winter is coming...</p>
+                <p id="fb-login">
+                    <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="true"></div>
+                </p>
+                <p id="controls">
+                    <a href="http://192.168.1.99/?toggle=garage">
+                        <button type="button" class="btn btn-success btn-lg">OPEN</button>
+                    </a>
+                    <a href="http://192.168.1.99/?toggle=garage">
+                        <button type="button" class="btn btn-danger btn-lg">CLOSE</button>
+                    </a>
+                </p>
+            </div>
+        </center>
+        <a class="twitter-timeline" href="https://twitter.com/Thrones_Memes">Tweets by Thrones_Memes</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </body>
+</html>
