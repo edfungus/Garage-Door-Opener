@@ -18,13 +18,14 @@ class Facebook
     bool checkGaragePermissions(String userToken);    
   private:
     Secret _secret;
-    String getAccessToken();
-    String getUserIdFromUserToken(String userToken, String accessToken);
+    char* getAccessToken();
+    char* getUserIdFromUserToken(String userToken, char* accessToken);
     WiFiClientSecure getWifiClient();   
     void makeRequest(String url, WiFiClientSecure client);
-    String getJsonFromRequest(WiFiClientSecure client); 
-    JsonObject& getObjectFromString(String json);
-    String getValueFromJson(JsonObject& jsonObj, char* key);
+    char* getJsonFromRequest(WiFiClientSecure client); 
+    JsonObject& getObjectFromString(char* json);
+    char* constCharToChar(const char* key);
+    char* stringToChar(String value);
     JsonObject& getObjectFromJson(JsonObject& jsonObj, char* key);
 };
 
@@ -36,14 +37,17 @@ Facebook::Facebook(Secret secret)
 
 bool Facebook::checkGaragePermissions(String userToken)
 {
-  String accessToken = getAccessToken();
+  char* accessToken = getAccessToken();
   Serial.println(accessToken);
-  String userID = getUserIdFromUserToken(userToken, accessToken);
+  char* userID = getUserIdFromUserToken(userToken, accessToken);
   Serial.println(userID);
-  return _secret.isUserAllowed(userID);
+  bool allowed = _secret.isUserAllowed(userID);
+  free(accessToken);
+  free(userID);
+  return allowed;
 }
 
-String Facebook::getAccessToken()
+char* Facebook::getAccessToken()
 {
   WiFiClientSecure client = getWifiClient();
 
@@ -57,15 +61,18 @@ String Facebook::getAccessToken()
   
   makeRequest(url, client);
 
-  String json = getJsonFromRequest(client);
+  char* json = getJsonFromRequest(client);
   Serial.println();  
   Serial.println(json);
 
   JsonObject& jsonObj = getObjectFromString(json);
-  return getValueFromJson(jsonObj, "access_token");
+  strcpy(userData->name, root["name"]);
+  const char* token = jsonObj["access_token"];
+  free(json);
+  return constCharToChar();
 }
 
-String Facebook::getUserIdFromUserToken(String userToken, String accessToken)
+char* Facebook::getUserIdFromUserToken(String userToken, char* accessToken)
 {
   WiFiClientSecure client = getWifiClient();
 
@@ -78,13 +85,19 @@ String Facebook::getUserIdFromUserToken(String userToken, String accessToken)
   
   makeRequest(url, client);
 
-  String json = getJsonFromRequest(client);
+  char* json = getJsonFromRequest(client);
   Serial.println();  
   Serial.println(json);
 
   JsonObject& jsonObj = getObjectFromString(json);
-  JsonObject& newJsonObj = getObjectFromJson(jsonObj, "data");
-  return getValueFromJson(newJsonObj, "user_id");
+  free(json);
+  // const char* value = jsonObj["data"]["user_id"];
+  // int length = strlen(value);
+  // Serial.println(length);
+  // char* newValue = (char*) malloc (length);
+  // strcpy (newValue, value);
+  // return newValue;  
+  return constCharToChar(jsonObj["data"]["user_id"]);
 }
 
 WiFiClientSecure Facebook::getWifiClient()
@@ -105,20 +118,20 @@ void Facebook::makeRequest(String url, WiFiClientSecure client)
   client.print(request);
 }
 
-String Facebook::getJsonFromRequest(WiFiClientSecure client)
+char* Facebook::getJsonFromRequest(WiFiClientSecure client)
 {
   while(client.available()){
     String line = client.readStringUntil('\r');
     Serial.print(line);
     if(line.charAt(1) == '{')
     {
-      return line;
+      return stringToChar(line);
     }
   }
-  return String("error");
+  return "error";
 }
 
-JsonObject& Facebook::getObjectFromString(String json)
+JsonObject& Facebook::getObjectFromString(char* json)
 {
   StaticJsonBuffer<300> jsonBuffer;  
   JsonObject& jsonObj = jsonBuffer.parseObject(json);
@@ -128,10 +141,21 @@ JsonObject& Facebook::getObjectFromString(String json)
   return jsonObj;
 }
 
-String Facebook::getValueFromJson(JsonObject& jsonObj, char* key)
+char* Facebook::constCharToChar(const char* value)
 {
-  const char* valueConst = jsonObj[key]; 
-  return String(valueConst);
+  int length = strlen(value);
+  Serial.println(length);
+  char* newValue = (char*) malloc (length);
+  strcpy (newValue, value);
+  return newValue;
+}
+
+char* Facebook::stringToChar(String value)
+{
+  int length = sizeof(value);
+  Serial.println(length);
+  char* newValue = (char*) malloc (length);
+  value.toCharArray(newValue, length);
 }
 
 JsonObject& Facebook::getObjectFromJson(JsonObject& jsonObj, char* key)
