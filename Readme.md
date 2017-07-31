@@ -1,4 +1,10 @@
 #### Garage Door Opener with Facebook Authentication
 
-###### Introduction
-This directory can be pushed to Cloud Foundary as the landing page for users to open or close the garage. After authenticating to Facebook, the "open" and "close" buttons will make requests to the ESP8266 that is connect to the garage door opener. The files inside `./garage` contains the code for the ESP8266 which I used the Arduino IDE to compile and upload. To use the ESP8266 code, a `Secret.h` file must be created with the appropiate credentials. Use `Secret_example.h` as a referenece. 
+##### Introduction
+This is a website that allows you to open your garage door. The actual door control is done by an ESP8266. There is alos Facebook authentication to control who has permission. The website handles the interface and authentication while the ESP8266 acts as a server to handle the `/open` and `/close` API calls. The ESP8266 in this case is programmed via the Arduino IDE. 
+
+##### How To Use
+* The website has to be hosted somewhere. This case I used Cloud Foundary and the app can be push from this directory using `cf push app-name -m 64m`
+* You must make a new Facebook app and use the domain from the website as an app domain. Note the App Id and App Secret
+* Create a copy of the file `garage/Secret_example.h`, name it `secret.h` and fill in the secret infomation from Facebook and your Wifi information 
+* Wire up your relay/control to the appropiate pin of you ESP8266 board. Beware of pin number conversions based on which type of board you have (NodeMUC, Wemos, no dev board, etc)

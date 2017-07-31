@@ -1,5 +1,5 @@
-#ifndef Secret_h
-#define Secret_h
+#ifndef secret_h
+#define secret_h
 
 char WIFI_SSID[ ] = "???";
 char WIFI_PASSWORD[ ] = "???";

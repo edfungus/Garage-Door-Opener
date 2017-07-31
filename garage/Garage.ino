@@ -4,10 +4,12 @@ Garage Door Opener
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include "facebook.h"
 #include "Secret.h"
 
 ESP8266WebServer server(80);
 Secret secret;
+Facebook facebook(secret);
 
 void setup() {
   Serial.begin(115200);  
@@ -30,7 +32,14 @@ void loop() {
 }
 
 void open() {
-  server.send(200, "text/plain", "Hello world open");
+  if(facebook.checkGaragePermissions("sdfdsf"))
+  {
+    server.send(200, "text/plain", "Hello world open");
+  }
+  else 
+  {
+    server.send(403, "text/plain", "Oops, you can't do that.");    
+  }
 }
 void close() {
   server.send(200, "text/plain", "Hello world close");
