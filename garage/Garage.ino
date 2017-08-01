@@ -52,7 +52,20 @@ void open()
   }
 }
 void close() {
-  server.send(200, "text/plain", "Hello world close");
+  String token = getUserToken();
+  if(token.equals("error"))
+  {
+    server.send(422, "text/plain", "Uhh, token?");   
+    return;
+  }
+  if(facebook.checkGaragePermissions(token))
+  {
+    server.send(200, "text/plain", "Hello world close");
+  }
+  else 
+  {
+    server.send(403, "text/plain", "Oops, you can't do that.");    
+  }
 }
 
 String getUserToken() {

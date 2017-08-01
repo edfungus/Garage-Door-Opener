@@ -4,7 +4,6 @@
 #include "secret.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
 
 const char* facebookHost = "graph.facebook.com";
 const int facebookPort = 443;
@@ -23,10 +22,8 @@ class Facebook
     WiFiClientSecure getWifiClient();   
     void makeRequest(String url, WiFiClientSecure client);
     char* getJsonFromRequest(WiFiClientSecure client); 
-    JsonObject& getObjectFromString(char* json);
-    char* constCharToChar(const char* key);
+    char* searchJsonForKey(char* json, char* key);
     char* stringToChar(String value);
-    JsonObject& getObjectFromJson(JsonObject& jsonObj, char* key);
 };
 
 Facebook::Facebook(Secret secret)
@@ -62,14 +59,12 @@ char* Facebook::getAccessToken()
   makeRequest(url, client);
 
   char* json = getJsonFromRequest(client);
-  Serial.println();  
-  Serial.println(json);
-
-  JsonObject& jsonObj = getObjectFromString(json);
-  strcpy(userData->name, root["name"]);
-  const char* token = jsonObj["access_token"];
+  Serial.println("+++++++++++++++++");  
+  Serial.println(json);   
+  char* token = searchJsonForKey(json, "access_token\":\"");
   free(json);
-  return constCharToChar();
+
+  return token;
 }
 
 char* Facebook::getUserIdFromUserToken(String userToken, char* accessToken)
@@ -86,18 +81,13 @@ char* Facebook::getUserIdFromUserToken(String userToken, char* accessToken)
   makeRequest(url, client);
 
   char* json = getJsonFromRequest(client);
-  Serial.println();  
+  Serial.println("+++++++++++++++++");  
   Serial.println(json);
 
-  JsonObject& jsonObj = getObjectFromString(json);
+  char* token = searchJsonForKey(json, "user_id\":\"");
   free(json);
-  // const char* value = jsonObj["data"]["user_id"];
-  // int length = strlen(value);
-  // Serial.println(length);
-  // char* newValue = (char*) malloc (length);
-  // strcpy (newValue, value);
-  // return newValue;  
-  return constCharToChar(jsonObj["data"]["user_id"]);
+
+  return token;
 }
 
 WiFiClientSecure Facebook::getWifiClient()
@@ -131,37 +121,28 @@ char* Facebook::getJsonFromRequest(WiFiClientSecure client)
   return "error";
 }
 
-JsonObject& Facebook::getObjectFromString(char* json)
+char* Facebook::searchJsonForKey(char* json, char* key)
 {
-  StaticJsonBuffer<300> jsonBuffer;  
-  JsonObject& jsonObj = jsonBuffer.parseObject(json);
-  if (!jsonObj.success()) {
-    Serial.println("Could not parse repsonse from Facebook");
-  }
-  return jsonObj;
-}
-
-char* Facebook::constCharToChar(const char* value)
-{
-  int length = strlen(value);
-  Serial.println(length);
-  char* newValue = (char*) malloc (length);
-  strcpy (newValue, value);
-  return newValue;
+  char* tokenStart;
+  char* matchStart = key;
+  tokenStart = strstr(json, matchStart);
+  char* tokenInJson = tokenStart + (int) strlen(matchStart);
+  char* matchEnd = "\"";  
+  int tokenLength = (int) strstr(tokenInJson, matchEnd) - (int) tokenInJson;
+  char* token = (char*) malloc (tokenLength + 1);
+  strncpy(token, tokenInJson, tokenLength);
+  token[tokenLength] = (char) 0;
+  return token;
+  
 }
 
 char* Facebook::stringToChar(String value)
 {
-  int length = sizeof(value);
+  int length = value.length() + 1;
   Serial.println(length);
   char* newValue = (char*) malloc (length);
   value.toCharArray(newValue, length);
-}
-
-JsonObject& Facebook::getObjectFromJson(JsonObject& jsonObj, char* key)
-{
-  JsonObject& newJsonObj = jsonObj[key];
-  return jsonObj;
+  return newValue;
 }
 
 #endif
