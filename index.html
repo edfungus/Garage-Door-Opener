@@ -25,6 +25,47 @@
         </script>  
         <script>
             var accessToken = "";
+            var garageDeviceAddress = "http://192.168.1.99/";
+
+            window.onload = function() {
+                document.getElementById("open").addEventListener("click", function(){ 
+                    let url = garageDeviceAddress + "open?token=" + accessToken;
+                    httpGet(url, function(response){
+                        if(response.status >= 300) {
+                            document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
+                                '<strong>Oh snap!</strong>' + response.responseText +
+                                '</div>';
+                        }
+                        setTimeout(function(){ 
+                            document.getElementById("alerts").innerHTML = "";
+                        }, 1000);
+                    });
+                });
+                document.getElementById("close").addEventListener("click", function(){ 
+                    let url = garageDeviceAddress + "close?token=" + accessToken;
+                    httpGet(url, function(response){
+                        if(response.status >= 300) {
+                            document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
+                                '<strong>Oh snap!</strong>' + response.responseText +
+                                '</div>';
+                        }
+                        setTimeout(function(){ 
+                            document.getElementById("alerts").innerHTML = "";
+                        }, 1000);
+                    });
+                });
+            };
+
+            function httpGet(url, callback) {
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function() { 
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                        callback(xmlHttp);
+                }
+                xmlHttp.open("GET", url, true); 
+                xmlHttp.send(null);
+            }
+
             window.fbAsyncInit = function() {
                 FB.init({
                 appId      : '107379623282146',
@@ -70,13 +111,10 @@
                     <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="true"></div>
                 </p>
                 <p id="controls">
-                    <a href="http://192.168.1.99/?toggle=garage">
-                        <button type="button" class="btn btn-success btn-lg">OPEN</button>
-                    </a>
-                    <a href="http://192.168.1.99/?toggle=garage">
-                        <button type="button" class="btn btn-danger btn-lg">CLOSE</button>
-                    </a>
+                    <button id="open" type="button" class="btn btn-success btn-lg">OPEN</button>
+                    <button id="close" type="button" class="btn btn-danger btn-lg">CLOSE</button>
                 </p>
+                <p id="alerts"></p>
             </div>
         </center>
         <a class="twitter-timeline" href="https://twitter.com/Thrones_Memes">Tweets by Thrones_Memes</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>

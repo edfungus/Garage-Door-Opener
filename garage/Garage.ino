@@ -12,9 +12,14 @@ Secret secret;
 Facebook facebook(secret);
 const char* argName = "token";
 
+#define relayPin 16
+
 void setup() 
 {
   Serial.begin(115200);  
+
+  pinMode(relayPin, OUTPUT);
+
   WiFi.begin(secret.getWifiSSID(), secret.getWifiPassword()); 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -44,6 +49,7 @@ void open()
   }
   if(facebook.checkGaragePermissions(token))
   {
+    toggleGarage();
     server.send(200, "text/plain", "Hello world open");
   }
   else 
@@ -60,6 +66,7 @@ void close() {
   }
   if(facebook.checkGaragePermissions(token))
   {
+    toggleGarage();
     server.send(200, "text/plain", "Hello world close");
   }
   else 
@@ -79,3 +86,8 @@ String getUserToken() {
   return String("error");
 }
 
+void toggleGarage(){
+  digitalWrite(relayPin, HIGH);
+  delay(100); 
+  digitalWrite(relayPin, LOW);
+}
