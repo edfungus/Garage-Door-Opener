@@ -30,7 +30,7 @@
             window.onload = function() {
                 document.getElementById("open").addEventListener("click", function(){ 
                     let url = garageDeviceAddress + "open?token=" + accessToken;
-                    httpGet(url, function(response){
+                    httpPost(url, function(response){
                         if(response.status >= 300) {
                             document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
                                 '<strong>Oh snap!</strong>' + response.responseText +
@@ -43,7 +43,7 @@
                 });
                 document.getElementById("close").addEventListener("click", function(){ 
                     let url = garageDeviceAddress + "close?token=" + accessToken;
-                    httpGet(url, function(response){
+                    httpPost(url, function(response){
                         if(response.status >= 300) {
                             document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
                                 '<strong>Oh snap!</strong>' + response.responseText +
@@ -56,13 +56,13 @@
                 });
             };
 
-            function httpGet(url, callback) {
+            function httpPost(url, callback) {
                 var xmlHttp = new XMLHttpRequest();
                 xmlHttp.onreadystatechange = function() { 
                     if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
                         callback(xmlHttp);
                 }
-                xmlHttp.open("GET", url, true); 
+                xmlHttp.open("POST", url, true); 
                 xmlHttp.send(null);
             }
 

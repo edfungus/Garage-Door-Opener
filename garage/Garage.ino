@@ -28,7 +28,16 @@ void setup()
   Serial.print("Connect with IP address: ");
   Serial.println(WiFi.localIP());
   
-  server.on("/open", open);
+  server.on("/open", HTTP_OPTIONS, []() {
+    server.sendHeader("Access-Control-Allow-Origin", "http://home.adventureswithedmund.com");
+    server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
+    server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    server.send(200, "text/plain", "" );
+  });
+  server.on("/open", HTTP_POST, [](){
+    server.sendHeader("Access-Control-Allow-Origin", "*");    
+    open();    
+  });  
   server.on("/close", close);
   server.begin();
   Serial.println("Server started");
@@ -44,16 +53,19 @@ void open()
   String token = getUserToken();
   if(token.equals("error"))
   {
+    server.sendHeader("Access-Control-Allow-Origin", "*");          
     server.send(422, "text/plain", "Uhh, token?");   
     return;
   }
   if(facebook.checkGaragePermissions(token))
   {
     toggleGarage();
+    server.sendHeader("Access-Control-Allow-Origin", "*");        
     server.send(200, "text/plain", "Hello world open");
   }
   else 
   {
+    server.sendHeader("Access-Control-Allow-Origin", "*");        
     server.send(403, "text/plain", "Oops, you can't do that.");    
   }
 }
