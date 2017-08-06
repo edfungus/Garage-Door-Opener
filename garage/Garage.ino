@@ -29,12 +29,12 @@ void setup()
   Serial.println(WiFi.localIP());
   
   server.on("/open", HTTP_OPTIONS, []() {
-    server.sendHeader("Access-Control-Allow-Origin", "http://home.adventureswithedmund.com");
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
     server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     server.send(200, "text/plain", "" );
   });
-  server.on("/open", HTTP_POST, [](){
+  server.on("/open", HTTP_PUT, [](){
     server.sendHeader("Access-Control-Allow-Origin", "*");    
     open();    
   });  

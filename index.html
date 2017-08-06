@@ -62,7 +62,7 @@
                     if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
                         callback(xmlHttp);
                 }
-                xmlHttp.open("POST", url, true); 
+                xmlHttp.open("PUT", url, true); 
                 xmlHttp.send(null);
             }
 
