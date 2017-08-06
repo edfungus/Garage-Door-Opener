@@ -12,7 +12,7 @@ Secret secret;
 Facebook facebook(secret);
 const char* argName = "token";
 
-#define relayPin 16
+#define relayPin 16 // pin D0 on wemos
 
 void setup() 
 {
@@ -28,15 +28,8 @@ void setup()
   Serial.print("Connect with IP address: ");
   Serial.println(WiFi.localIP());
   
-  // server.on("/open", HTTP_OPTIONS, []() {
-  //   server.sendHeader("Access-Control-Allow-Origin", "http://home.adventureswithedmund.com");
-  //   server.sendHeader("Access-Control-Allow-Methods", "POST,GET,PUT,OPTIONS");
-  //   server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  //   Serial.print("OPTIONS hit");    
-  //   server.send(200, "text/plain", "" );
-  // });
   server.on("/open", HTTP_POST, open);  
-  server.on("/close", close);
+  server.on("/close", HTTP_POST, close);
   server.begin();
   Serial.println("Server started");
 }
