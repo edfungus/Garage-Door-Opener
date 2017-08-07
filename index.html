@@ -29,29 +29,37 @@
 
             window.onload = function() {
                 document.getElementById("open").addEventListener("click", function(){ 
+                    document.getElementById("alerts").innerHTML = '<div class="alert alert-warning" role="alert">' +
+                                '<strong>Please wait ... </strong></div>';
                     let url = garageDeviceAddress + "open?token=" + accessToken;
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
                                 '<strong>Oh snap!</strong>' + response.responseText +
                                 '</div>';
+                            setTimeout(function(){ 
+                                document.getElementById("alerts").innerHTML = "";
+                            }, 1000);
+                        } else {
+                            document.getElementById("alerts").innerHTML = "";                            
                         }
-                        setTimeout(function(){ 
-                            document.getElementById("alerts").innerHTML = "";
-                        }, 1000);
                     });
                 });
                 document.getElementById("close").addEventListener("click", function(){ 
                     let url = garageDeviceAddress + "close?token=" + accessToken;
+                    document.getElementById("alerts").innerHTML = '<div class="alert alert-warning" role="alert">' +
+                                '<strong>Please wait ... </strong></div>';
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
                                 '<strong>Oh snap!</strong>' + response.responseText +
                                 '</div>';
+                            setTimeout(function(){ 
+                                document.getElementById("alerts").innerHTML = "";
+                            }, 1000);
+                        } else {
+                            document.getElementById("alerts").innerHTML = "";                            
                         }
-                        setTimeout(function(){ 
-                            document.getElementById("alerts").innerHTML = "";
-                        }, 1000);
                     });
                 });
             };

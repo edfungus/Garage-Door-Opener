@@ -12,7 +12,7 @@ Secret secret;
 Facebook facebook(secret);
 const char* argName = "token";
 
-#define relayPin 16 // pin D0 on wemos
+#define relayPin 12 // pin D6 on wemos
 
 void setup() 
 {
