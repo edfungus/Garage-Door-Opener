@@ -18,6 +18,7 @@ void setup()
 {
   Serial.begin(115200);  
 
+  digitalWrite(relayPin, HIGH);
   pinMode(relayPin, OUTPUT);
 
   WiFi.begin(secret.getWifiSSID(), secret.getWifiPassword()); 
@@ -87,7 +88,7 @@ String getUserToken() {
 }
 
 void toggleGarage(){
-  digitalWrite(relayPin, HIGH);
-  delay(100); 
   digitalWrite(relayPin, LOW);
+  delay(700); 
+  digitalWrite(relayPin, HIGH);
 }
