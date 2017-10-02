@@ -27,6 +27,7 @@
             var accessToken = "";
             var garageDeviceAddress = "http://192.168.1.22/";
             var inProgress = false;
+            var messageDisplayTime = 2500;
 
             window.onload = function() {
                 getStatus();
@@ -38,10 +39,10 @@
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
-                            setAlertWithTimeout(message, 1000);                       
+                            setAlertWithTimeout(message, messageDisplayTime);                       
                         } else {
                             message = createAlertMessage("alert-info", "garage opened", "")
-                            setAlertWithTimeout(message, 1000);
+                            setAlertWithTimeout(message, messageDisplayTime);
                             setStatus("opened");
                         }
                         enableButtons();
@@ -55,10 +56,10 @@
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
-                            setAlertWithTimeout(message, 1000);                       
+                            setAlertWithTimeout(message, messageDisplayTime);                       
                         } else {
                             message = createAlertMessage("alert-info", "garage toggled", "")
-                            setAlertWithTimeout(message, 1000);         
+                            setAlertWithTimeout(message, messageDisplayTime);         
                             setStatus("????");                                          
                         }
                         enableButtons();
@@ -72,10 +73,10 @@
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
-                            setAlertWithTimeout(message, 1000);   
+                            setAlertWithTimeout(message, messageDisplayTime);   
                         } else {
                             message = createAlertMessage("alert-info", "garage closed", "")
-                            setAlertWithTimeout(message, 1000);   
+                            setAlertWithTimeout(message, messageDisplayTime);   
                             setStatus("closed");
                         }
                         enableButtons();
@@ -100,14 +101,14 @@
             }
             function disableButtons(){
                 buttons = document.getElementsByClassName("btn");
-                for(var button in buttons) {
-                    button.setAttribute("disabled", "true");
+                for(var i=0; i<buttons.length; i++) {
+                    buttons[i].setAttribute("disabled", "true");
                 }
             }
             function enableButtons(){
                 buttons = document.getElementsByClassName("btn");
-                for(var button in buttons) {
-                    button.setAttribute("disabled", "false");
+                for(var i=0; i<buttons.length; i++) {
+                    buttons[i].removeAttribute("disabled");
                 }
             }
             function createAlertMessage(classType, mainText, subText) {
