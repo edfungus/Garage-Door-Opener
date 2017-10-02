@@ -26,44 +26,102 @@
         <script>
             var accessToken = "";
             var garageDeviceAddress = "http://192.168.1.22/";
+            var inProgress = false;
 
             window.onload = function() {
+                getStatus();
                 document.getElementById("open").addEventListener("click", function(){ 
-                    document.getElementById("alerts").innerHTML = '<div class="alert alert-warning" role="alert">' +
-                                '<strong>Please wait ... </strong></div>';
+                    disableButtons();
+                    message = createAlertMessage("alert-warning", "please wait ...", "")
+                    setAlert(message); 
                     let url = garageDeviceAddress + "open?token=" + accessToken;
                     httpPost(url, function(response){
                         if(response.status >= 300) {
-                            document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
-                                '<strong>Oh snap!</strong>' + response.responseText +
-                                '</div>';
-                            setTimeout(function(){ 
-                                document.getElementById("alerts").innerHTML = "";
-                            }, 1000);
+                            message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
+                            setAlertWithTimeout(message, 1000);                       
                         } else {
-                            document.getElementById("alerts").innerHTML = "";                            
+                            message = createAlertMessage("alert-info", "garage opened", "")
+                            setAlertWithTimeout(message, 1000);
+                            setStatus("opened");
                         }
+                        enableButtons();
+                    });
+                });
+                document.getElementById("toggle").addEventListener("click", function(){ 
+                    disableButtons();
+                    message = createAlertMessage("alert-warning", "please wait ...", "")
+                    setAlert(message); 
+                    let url = garageDeviceAddress + "toggle?token=" + accessToken;
+                    httpPost(url, function(response){
+                        if(response.status >= 300) {
+                            message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
+                            setAlertWithTimeout(message, 1000);                       
+                        } else {
+                            message = createAlertMessage("alert-info", "garage toggled", "")
+                            setAlertWithTimeout(message, 1000);         
+                            setStatus("????");                                          
+                        }
+                        enableButtons();
                     });
                 });
                 document.getElementById("close").addEventListener("click", function(){ 
+                    disableButtons();
+                    message = createAlertMessage("alert-warning", "please wait ...", "")
+                    setAlert(message); 
                     let url = garageDeviceAddress + "close?token=" + accessToken;
-                    document.getElementById("alerts").innerHTML = '<div class="alert alert-warning" role="alert">' +
-                                '<strong>Please wait ... </strong></div>';
                     httpPost(url, function(response){
                         if(response.status >= 300) {
-                            document.getElementById("alerts").innerHTML = '<div class="alert alert-danger" role="alert">' +
-                                '<strong>Oh snap!</strong>' + response.responseText +
-                                '</div>';
-                            setTimeout(function(){ 
-                                document.getElementById("alerts").innerHTML = "";
-                            }, 1000);
+                            message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
+                            setAlertWithTimeout(message, 1000);   
                         } else {
-                            document.getElementById("alerts").innerHTML = "";                            
+                            message = createAlertMessage("alert-info", "garage closed", "")
+                            setAlertWithTimeout(message, 1000);   
+                            setStatus("closed");
                         }
+                        enableButtons();
                     });
                 });
             };
 
+            function setAlert(message) {
+                document.getElementById("alerts").innerHTML = message; 
+            }
+            function setStatus(message) {
+                document.getElementById("status").innerHTML = "STATUS: " +message; 
+            }
+            function setAlertWithTimeout(message, timeout) {
+                document.getElementById("alerts").innerHTML = message; 
+                clearAlert(timeout);
+            }
+            function clearAlert(timeout) {
+                setTimeout(function(){ 
+                    document.getElementById("alerts").innerHTML = "";
+                }, timeout);
+            }
+            function disableButtons(){
+                buttons = document.getElementsByClassName("btn");
+                for(var button in buttons) {
+                    button.setAttribute("disabled", "true");
+                }
+            }
+            function enableButtons(){
+                buttons = document.getElementsByClassName("btn");
+                for(var button in buttons) {
+                    button.setAttribute("disabled", "false");
+                }
+            }
+            function createAlertMessage(classType, mainText, subText) {
+                return '<div class="alert ' + classType + '" role="alert">' +
+                    '<strong>' + mainText + '</strong>' + subText +
+                    '</div>';
+            }
+            function getStatus(){
+                url = garageDeviceAddress + "status";
+                httpGet(url, function(response){
+                    resp = JSON.parse(response.responseText);
+                    setStatus(resp.state);
+                });
+            }
             function httpPost(url, callback) {
                 var xmlHttp = new XMLHttpRequest();
                 xmlHttp.onreadystatechange = function() { 
@@ -71,6 +129,15 @@
                         callback(xmlHttp);
                 }
                 xmlHttp.open("POST", url, true); 
+                xmlHttp.send(null);
+            }
+            function httpGet(url, callback) {
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function() { 
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                        callback(xmlHttp);
+                }
+                xmlHttp.open("GET", url, true); 
                 xmlHttp.send(null);
             }
 
@@ -118,8 +185,10 @@
                 <p id="fb-login">
                     <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="true"></div>
                 </p>
+                <p id="status"></p>
                 <p id="controls">
                     <button id="open" type="button" class="btn btn-success btn-lg">OPEN</button>
+                    <button id="toggle" type="button" class="btn btn-success btn-lg">TOGGLE</button>
                     <button id="close" type="button" class="btn btn-danger btn-lg">CLOSE</button>
                 </p>
                 <p id="alerts"></p>
