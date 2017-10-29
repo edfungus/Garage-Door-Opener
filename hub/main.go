@@ -71,6 +71,10 @@ func createRESTConnector() *eevee.Connector {
 				Path:   "/close",
 				Method: http.MethodPost,
 			},
+			"toggle": {
+				Path:   "/toggle",
+				Method: http.MethodPost,
+			},
 		},
 		Port:    "8080",
 		Router:  nil,
@@ -91,7 +95,7 @@ func createRESTConnector() *eevee.Connector {
 func createMQTTConnector(username string, password string) *eevee.Connector {
 	mqttConfig := eevee.MqttConnectionConfig{
 		Server:   "tcp://192.168.12.30:1883",
-		Topics:   []string{"open", "close"},
+		Topics:   []string{},
 		ClientID: "raspberrypi",
 		Qos:      byte(1),
 		Username: username,
