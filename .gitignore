@@ -1,4 +1,6 @@
 garage/Secret.h
+hub/hub
+app/app
 .DS_Store
 garageDoor
 Garage-Door-Opener
