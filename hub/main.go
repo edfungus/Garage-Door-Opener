@@ -76,7 +76,7 @@ func createRESTConnector() *eevee.Connector {
 				Method: http.MethodPost,
 			},
 		},
-		Port:    "8080",
+		Port:    "80",
 		Router:  nil,
 		Wrapper: fbAuthWrapper,
 	}
