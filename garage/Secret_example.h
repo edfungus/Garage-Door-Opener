@@ -1,40 +1,44 @@
 #ifndef secret_h
 #define secret_h
 
-char WIFI_SSID[ ] = "???";
-char WIFI_PASSWORD[ ] = "???";
-char FB_ID[ ] = "???";
-char FB_SECRET[ ] = "???";
-
-char* allowedUserIDs[] = {"???", "???"};
+const char WIFI_SSID[ ] = "???";
+const char WIFI_PASSWORD[ ] = "???";
+const char MQTT_USERNAME[ ] = "???";
+const char MQTT_PASSWORD[ ] = "???";
+const char MQTT_IP[ ] = "???";
 
 class Secret
 {
   public:
     Secret();
-    char* getWifiSSID();
-    char* getWifiPassword();
-    char* getFBId();
-    char* getFBSecret();
+    char const* getWifiSSID();
+    char const* getWifiPassword();
+    char const* getMQTTUsername();
+    char const* getMQTTPassword();
+    char const* getMQTTIp();
 };
 
 Secret::Secret(){}
 
-char* Secret::getWifiSSID()
+char const* Secret::getWifiSSID()
 {
   return WIFI_SSID;
 }
-char* Secret::getWifiPassword()
+char const* Secret::getWifiPassword()
 {
   return WIFI_PASSWORD;
 }
-char* Secret::getFBId()
+char const* Secret::getMQTTUsername()
 {
-  return FB_ID;
+  return MQTT_USERNAME;
 }
-char* Secret::getFBSecret()
+char const* Secret::getMQTTPassword()
 {
-  return FB_SECRET;
+  return MQTT_PASSWORD;
+}
+char const* Secret::getMQTTIp()
+{
+  return MQTT_IP;
 }
 
 #endif

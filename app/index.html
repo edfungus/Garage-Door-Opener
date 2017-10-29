@@ -25,7 +25,8 @@
         </script>  
         <script>
             var accessToken = "";
-            var garageDeviceAddress = "http://192.168.12.30/";
+            var hubAddress = "http://192.168.12.30/";
+            var garageDeviceAddress = "http://192.168.1.22/";
             var inProgress = false;
             var messageDisplayTime = 2500;
 
@@ -35,7 +36,7 @@
                     disableButtons();
                     message = createAlertMessage("alert-warning", "please wait ...", "")
                     setAlert(message); 
-                    let url = garageDeviceAddress + "open?token=" + accessToken;
+                    let url = hubAddress + "open?token=" + accessToken;
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
@@ -52,7 +53,7 @@
                     disableButtons();
                     message = createAlertMessage("alert-warning", "please wait ...", "")
                     setAlert(message); 
-                    let url = garageDeviceAddress + "toggle?token=" + accessToken;
+                    let url = hubAddress + "toggle?token=" + accessToken;
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             message = createAlertMessage("alert-danger", "oh snap!", response.responseText)
@@ -69,7 +70,7 @@
                     disableButtons();
                     message = createAlertMessage("alert-warning", "please wait ...", "")
                     setAlert(message); 
-                    let url = garageDeviceAddress + "close?token=" + accessToken;
+                    let url = hubAddress + "close?token=" + accessToken;
                     httpPost(url, function(response){
                         if(response.status >= 300) {
                             message = createAlertMessage("alert-danger", "oh snap!", response.responseText)

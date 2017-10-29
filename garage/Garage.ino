@@ -4,13 +4,14 @@ Garage Door Opener
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include "facebook.h"
+#include <PubSubClient.h>
 #include "Secret.h"
 
 ESP8266WebServer server(80);
+WiFiClient espClient;
 Secret secret;
-Facebook facebook(secret);
-const char* argName = "token";
+PubSubClient mqttClient(espClient);
+
 const long garageThreshold = 40;
 
 #define relayPin 12 // pin D6 on wemos
@@ -33,10 +34,10 @@ void setup()
   }
   Serial.print("Connect with IP address: ");
   Serial.println(WiFi.localIP());
-  
-  server.on("/open", HTTP_POST, open);  
-  server.on("/close", HTTP_POST, close);
-  server.on("/toggle", HTTP_POST, toggle);
+
+  mqttClient.setServer(secret.getMQTTIp(), 1883);
+  mqttClient.setCallback(callback);
+
   server.on("/status", HTTP_GET, status);
   server.begin();
   Serial.println("Server started");
@@ -44,74 +45,62 @@ void setup()
 
 void loop() 
 {
+  if (!mqttClient.connected()) {
+    reconnectMqtt();
+  }
+  mqttClient.loop();
   server.handleClient();
 }
 
-void open() {
-  String token = getUserToken();
-  if(token.equals("error"))
-  {
-    server.send(422, "text/plain", "Uhh, token?");   
-    return;
-  }
-  if(facebook.checkGaragePermissions(token))
-  {
-    if(!isDoorOpen())
-    {
-      toggleGarage();
-    }
-    server.send(200, "text/plain", "Hello world open");
-  }
-  else 
-  {
-    server.send(403, "text/plain", "Oops, you can't do that.");    
-  }
-}
-void close() {
-  String token = getUserToken();
-  if(token.equals("error"))
-  {
-    server.send(422, "text/plain", "Uhh, token?");   
-    return;
-  }
-  if(facebook.checkGaragePermissions(token))
-  {
-    if(isDoorOpen())
-    {
-      toggleGarage();
-    }
-    server.send(200, "text/plain", "Hello world close");
-  }
-  else 
-  {
-    server.send(403, "text/plain", "Oops, you can't do that.");    
-  }
-}
-void toggle() {
-  String token = getUserToken();
-  if(token.equals("error"))
-  {
-    server.send(422, "text/plain", "Uhh, token?");   
-    return;
-  }
-  if(facebook.checkGaragePermissions(token))
-  {
-    toggleGarage();
-    server.send(200, "text/plain", "Hello world close");
-  }
-  else 
-  {
-    server.send(403, "text/plain", "Oops, you can't do that.");    
-  }
-}
-void status() {
-    if(isDoorOpen())
-    {
-      server.send(200, "application/json", "{\"state\":\"open\"}");
+
+void reconnectMqtt() {
+  // Loop until we're reconnected
+  while (!mqttClient.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Create a random client ID
+    String clientId = "garageDoor";
+    // Attempt to connect
+    if (mqttClient.connect(clientId.c_str(), secret.getMQTTUsername(), secret.getMQTTPassword())) {
+      Serial.println("connected to mqtt");
+      mqttClient.subscribe("open");
+      mqttClient.subscribe("close");
+      mqttClient.subscribe("toggle");
     } else {
-      server.send(200, "application/json", "{\"state\":\"closed\"}");
+      Serial.print("failed, rc=");
+      Serial.print(mqttClient.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
     }
+  }
 }
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  if (strcmp(topic,"open")==0) {
+    if(!isDoorOpen()) {
+      toggleGarage();
+    }
+  }
+  if (strcmp(topic,"close")==0) {
+    if(isDoorOpen()) {
+      toggleGarage();
+    }
+  }
+  if (strcmp(topic,"toggle")==0) {
+    toggleGarage();
+  }
+}
+
+void status() {
+  Serial.println("Getting garage status!");  
+  if(isDoorOpen())
+  {
+    server.send(200, "application/json", "{\"state\":\"open\"}");
+  } else {
+    server.send(200, "application/json", "{\"state\":\"closed\"}");
+  }
+}
+
 boolean isDoorOpen() {
   long duration, cm;
   long totalCm = 0;
@@ -137,18 +126,8 @@ boolean isDoorOpen() {
   }
 }
 
-String getUserToken() {
-  for (int i = 0; i < server.args(); i++) 
-  {
-    if(server.argName(i) == argName)
-    {
-      return server.arg(i);
-    }
-  } 
-  return String("error");
-}
-
 void toggleGarage(){
+  Serial.println("Toggling garage!");
   digitalWrite(relayPin, LOW);
   delay(700); 
   digitalWrite(relayPin, HIGH);
